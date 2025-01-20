@@ -180,6 +180,9 @@ export type Database = {
           shipping_zip: string;
           status: string;
           transaction_id: string | null;
+          customer_name: string | null; // NEW FIELD
+          customer_email: string | null; // NEW FIELD
+          customer_phone: string | null; // NEW FIELD
         };
         Insert: {
           billing_city?: string | null;
@@ -198,6 +201,9 @@ export type Database = {
           shipping_zip: string;
           status?: string;
           transaction_id?: string | null;
+          customer_name?: string | null; // NEW FIELD
+          customer_email?: string | null; // NEW FIELD
+          customer_phone?: string | null; // NEW FIELD
         };
         Update: {
           billing_city?: string | null;
@@ -216,6 +222,9 @@ export type Database = {
           shipping_zip?: string;
           status?: string;
           transaction_id?: string | null;
+          customer_name?: string | null; // NEW FIELD
+          customer_email?: string | null; // NEW FIELD
+          customer_phone?: string | null; // NEW FIELD
         };
         Relationships: [];
       };
