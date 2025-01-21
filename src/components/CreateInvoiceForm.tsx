@@ -1,66 +1,74 @@
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { toast } from "sonner"
-import { supabase } from "@/lib/supabase"
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 interface InvoiceFormData {
-  number: string
-  date: string
-  customer: string
-  amount: number
-  status: "pending" | "paid" | "overdue"
-  email?: string
-  phone?: string
+  number: string;
+  date: string;
+  customer: string;
+  amount: number;
+  status: "pending" | "paid" | "overdue";
+  email?: string;
+  phone?: string;
 }
 
 export function CreateInvoiceForm({ onSuccess }: { onSuccess: () => void }) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm<InvoiceFormData>({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm<InvoiceFormData>({
     defaultValues: {
       status: "pending",
-      number: "INV-"
-    }
-  })
+      number: `INV-${Date.now()}`, // Generate unique invoice number
+    },
+  });
 
   const onSubmit = async (data: InvoiceFormData) => {
     try {
-      setIsSubmitting(true)
-      const { error } = await supabase
-        .from('invoices')
-        .insert([
-          {
-            invoice_number: data.number,
-            date: data.date,
-            customer: data.customer,
-            amount: data.amount,
-            status: data.status,
-            email: data.email,
-            phone: data.phone
-          }
-        ])
-
-      if (error) throw error
-
-      toast.success("Invoice created successfully")
-      onSuccess()
+      setIsSubmitting(true);
+  
+      // Ensure the invoice_number is generated if not provided
+      const invoicePayload = {
+        invoice_number: data.number || `INV-${Date.now()}`, // Generate a unique invoice number if not provided
+        date: data.date,
+        customer: data.customer,
+        amount: data.amount,
+        status: data.status,
+        email: data.email,
+        phone: data.phone,
+      };
+  
+      console.log("Invoice Payload:", invoicePayload);
+  
+      // Insert the invoice into the database
+      const { error } = await supabase.from("invoices").insert([invoicePayload]);
+  
+      if (error) throw error;
+  
+      toast.success("Invoice created successfully");
+      onSuccess();
     } catch (error) {
-      console.error('Error creating invoice:', error)
-      toast.error("Failed to create invoice")
+      console.error("Error creating invoice:", error);
+      toast.error("Failed to create invoice");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
-
+  };
+  
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
@@ -107,8 +115,8 @@ export function CreateInvoiceForm({ onSuccess }: { onSuccess: () => void }) {
           {...register("email", {
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Invalid email address"
-            }
+              message: "Invalid email address",
+            },
           })}
           placeholder="customer@example.com"
         />
@@ -136,9 +144,9 @@ export function CreateInvoiceForm({ onSuccess }: { onSuccess: () => void }) {
           id="amount"
           type="number"
           step="0.01"
-          {...register("amount", { 
+          {...register("amount", {
             required: "Amount is required",
-            min: { value: 0, message: "Amount must be positive" }
+            min: { value: 0, message: "Amount must be positive" },
           })}
           placeholder="0.00"
         />
@@ -149,9 +157,11 @@ export function CreateInvoiceForm({ onSuccess }: { onSuccess: () => void }) {
 
       <div className="space-y-2">
         <Label htmlFor="status">Status</Label>
-        <Select 
+        <Select
           defaultValue="pending"
-          onValueChange={(value) => setValue("status", value as "pending" | "paid" | "overdue")}
+          onValueChange={(value) =>
+            setValue("status", value as "pending" | "paid" | "overdue")
+          }
         >
           <SelectTrigger>
             <SelectValue placeholder="Select status" />
@@ -171,5 +181,5 @@ export function CreateInvoiceForm({ onSuccess }: { onSuccess: () => void }) {
         {isSubmitting ? "Creating..." : "Create Invoice"}
       </Button>
     </form>
-  )
+  );
 }

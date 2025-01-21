@@ -41,26 +41,40 @@ export default function Orders() {
     queryKey: ["orders", dateRange],
     queryFn: async () => {
       console.log("Fetching orders with date range:", dateRange)
+      // const { data, error } = await supabase
+      //   .from("orders")
+      //   .select(`
+      //     *,
+      //     invoice:invoices(
+      //       customer,
+      //       date,
+      //       amount
+      //     )
+      //   `)
+      //   .gte('created_at', dateRange.from?.toISOString() ?? '')
+      //   .lte('created_at', dateRange.to?.toISOString() ?? new Date().toISOString())
+      //   .order('created_at', { ascending: false })
       const { data, error } = await supabase
         .from("orders")
         .select(`
-          *,
-          invoice:invoices(
-            customer,
-            date,
-            amount
-          )
-        `)
+    *,
+    invoice:invoices(
+      customer,
+      date,
+      amount
+    )
+  `)
         .gte('created_at', dateRange.from?.toISOString() ?? '')
         .lte('created_at', dateRange.to?.toISOString() ?? new Date().toISOString())
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false });
+
 
       if (error) {
         console.error("Error fetching orders:", error)
         toast.error("Failed to fetch orders")
         throw error
       }
-      
+
       console.log("Fetched orders:", data)
       return data || []
     },
@@ -160,8 +174,8 @@ export default function Orders() {
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>
-              <CSVLink 
-                data={csvData} 
+              <CSVLink
+                data={csvData}
                 filename="orders.csv"
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
               >
@@ -208,13 +222,12 @@ export default function Orders() {
                         {order.invoice?.date ? new Date(order.invoice.date).toLocaleDateString() : '-'}
                       </TableCell>
                       <TableCell>
-                        <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          order.status === 'fulfilled' 
-                            ? 'bg-green-100 text-green-800'
-                            : order.status === 'declined'
+                        <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${order.status === 'fulfilled'
+                          ? 'bg-green-100 text-green-800'
+                          : order.status === 'declined'
                             ? 'bg-red-100 text-red-800'
                             : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                          }`}>
                           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                         </div>
                       </TableCell>
@@ -232,7 +245,7 @@ export default function Orders() {
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious 
+                  <PaginationPrevious
                     href="#"
                     onClick={(e) => {
                       e.preventDefault()

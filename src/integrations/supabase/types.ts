@@ -51,42 +51,79 @@ export type Database = {
         }
         Relationships: []
       }
+      // invoices: {
+      //   Row: {
+      //     amount: number
+      //     created_at: string
+      //     customer: string
+      //     date: string
+      //     email: string | null
+      //     id: string
+      //     invoice_number: string
+      //     phone: string | null
+      //     status: string
+      //   }
+      //   Insert: {
+      //     amount?: number
+      //     created_at?: string
+      //     customer: string
+      //     date: string
+      //     email?: string | null
+      //     id?: string
+      //     invoice_number: string
+      //     phone?: string | null
+      //     status?: string
+      //   }
+      //   Update: {
+      //     amount?: number
+      //     created_at?: string
+      //     customer?: string
+      //     date?: string
+      //     email?: string | null
+      //     id?: string
+      //     invoice_number?: string
+      //     phone?: string | null
+      //     status?: string
+      //   }
+      //   Relationships: []
+      // }
+
       invoices: {
         Row: {
-          amount: number
-          created_at: string
-          customer: string
-          date: string
-          email: string | null
-          id: string
-          invoice_number: string
-          phone: string | null
-          status: string
-        }
+          amount: number; // Existing
+          created_at: string; // Existing
+          customer: string; // Existing
+          date: string; // Existing
+          email: string | null; // Corrected to match 'customer_email'
+          id: string; // Existing
+          invoice_number: string; // Existing
+          phone: string | null; // Existing
+          status: string; // Existing
+        };
         Insert: {
-          amount?: number
-          created_at?: string
-          customer: string
-          date: string
-          email?: string | null
-          id?: string
-          invoice_number: string
-          phone?: string | null
-          status?: string
-        }
+          amount?: number; // Existing
+          created_at?: string; // Existing
+          customer: string; // Existing
+          date: string; // Existing
+          email?: string | null; // Corrected to match 'customer_email'
+          id?: string; // Existing
+          invoice_number: string; // Existing
+          phone?: string | null; // Existing
+          status?: string; // Existing
+        };
         Update: {
-          amount?: number
-          created_at?: string
-          customer?: string
-          date?: string
-          email?: string | null
-          id?: string
-          invoice_number?: string
-          phone?: string | null
-          status?: string
-        }
-        Relationships: []
-      }
+          amount?: number; // Existing
+          created_at?: string; // Existing
+          customer?: string; // Existing
+          date?: string; // Existing
+          email?: string | null; // Corrected to match 'customer_email'
+          id?: string; // Existing
+          invoice_number?: string; // Existing
+          phone?: string | null; // Existing
+          status?: string; // Existing
+        };
+      };
+      
 
       // --------------------------//
       // with invoice functionality //
@@ -183,6 +220,8 @@ export type Database = {
           customer_name: string | null; // NEW FIELD
           customer_email: string | null; // NEW FIELD
           customer_phone: string | null; // NEW FIELD
+          order_date: string | null; // NEW FIELD
+          quantity: number; // NEW FIELD
         };
         Insert: {
           billing_city?: string | null;
@@ -204,6 +243,8 @@ export type Database = {
           customer_name?: string | null; // NEW FIELD
           customer_email?: string | null; // NEW FIELD
           customer_phone?: string | null; // NEW FIELD
+          order_date?: string; // NEW FIELD
+          quantity: number; // NEW FIELD
         };
         Update: {
           billing_city?: string | null;
@@ -225,9 +266,12 @@ export type Database = {
           customer_name?: string | null; // NEW FIELD
           customer_email?: string | null; // NEW FIELD
           customer_phone?: string | null; // NEW FIELD
+          order_date?: string; // NEW FIELD
+          quantity?: number; // NEW FIELD
         };
         Relationships: [];
       };
+      
       // --------------------------//
       products: {
         Row: {

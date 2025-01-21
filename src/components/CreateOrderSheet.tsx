@@ -113,7 +113,37 @@ export function CreateOrderSheet({ onOrderCreated }: CreateOrderSheetProps) {
 
   const onSubmit = async (values: OrderFormValues) => {
     try {
+      // Step 1: Create an Invoice
+      // const invoicePayload = {
+      //   customer_name: values.customerName,
+      //   customer_email: values.customerEmail || null,
+      //   customer_phone: values.customerPhone,
+      //   order_date: values.orderDate.toISOString(),
+      // };
+
+      const invoicePayload = {
+        customer: values.customerName, // Corresponds to 'customer' in the schema
+        email: values.customerEmail || null, // Correct column name for 'customer_email'
+        phone: values.customerPhone || null,
+        date: values.orderDate.toISOString(), // Ensure the date matches the 'date' column
+      };
+
+      const { data: invoiceData, error: invoiceError } = await supabase
+        .from("invoices") // Make sure this table exists in your DB
+        .insert([invoicePayload])
+        .select("id")
+        .single();
+
+      if (invoiceError) {
+        toast.error(`Failed to create invoice: ${invoiceError.message}`);
+        return;
+      }
+
+      // const invoiceId = invoiceData.id;
+
+      // Step 2: Create Orders with the Generated `invoice_id`
       const orderPayloads = values.items.map((item) => ({
+        invoice_id: null, // Use null if no invoice ID is provided
         shipping_street: values.shippingStreet,
         shipping_city: values.shippingCity,
         shipping_state: values.shippingState,
@@ -141,14 +171,12 @@ export function CreateOrderSheet({ onOrderCreated }: CreateOrderSheetProps) {
       }
 
       toast.success("Order created successfully");
-      setOpen(false);
-      form.reset(defaultValues);
-      onOrderCreated?.();
     } catch (error) {
       console.error("Error creating order:", error);
       toast.error("Failed to create order");
     }
   };
+
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
