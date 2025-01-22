@@ -1,5 +1,5 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Card } from "@/components/ui/card"
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -7,13 +7,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Filter, Download } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { supabase } from "@/integrations/supabase/client"
-import { CreateOrderSheet } from "@/components/CreateOrderSheet"
-import { CSVLink } from "react-csv"
+} from "@/components/ui/table";
+import { Filter, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { CreateOrderSheet } from "@/components/CreateOrderSheet";
+import { CSVLink } from "react-csv";
 import {
   Pagination,
   PaginationContent,
@@ -21,92 +21,79 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
-import { useState } from "react"
-import { DatePickerWithRange } from "@/components/ui/date-range-picker"
-import { addDays } from "date-fns"
-import { toast } from "sonner"
-import { DateRange } from "react-day-picker"
+} from "@/components/ui/pagination";
+import { useState } from "react";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
+import { addDays } from "date-fns";
+import { toast } from "sonner";
+import { DateRange } from "react-day-picker";
 
 export default function Orders() {
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1);
   const [dateRange, setDateRange] = useState<DateRange>({
     from: addDays(new Date(), -30),
     to: new Date(),
-  })
-  const ordersPerPage = 10
-  const queryClient = useQueryClient()
+  });
+  const ordersPerPage = 10;
+  const queryClient = useQueryClient();
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["orders", dateRange],
     queryFn: async () => {
-      console.log("Fetching orders with date range:", dateRange)
-      // const { data, error } = await supabase
-      //   .from("orders")
-      //   .select(`
-      //     *,
-      //     invoice:invoices(
-      //       customer,
-      //       date,
-      //       amount
-      //     )
-      //   `)
-      //   .gte('created_at', dateRange.from?.toISOString() ?? '')
-      //   .lte('created_at', dateRange.to?.toISOString() ?? new Date().toISOString())
-      //   .order('created_at', { ascending: false })
+      console.log("Fetching orders with date range:", dateRange);
+
       const { data, error } = await supabase
         .from("orders")
         .select(`
-    *,
-    invoice:invoices(
-      customer,
-      date,
-      amount
-    )
-  `)
-        .gte('created_at', dateRange.from?.toISOString() ?? '')
-        .lte('created_at', dateRange.to?.toISOString() ?? new Date().toISOString())
-        .order('created_at', { ascending: false });
-
+          id,
+          customer_name,
+          order_date,
+          payment_method,
+          status,
+          product_price
+        `)
+        .gte("created_at", dateRange.from?.toISOString() ?? "")
+        .lte("created_at", dateRange.to?.toISOString() ?? new Date().toISOString())
+        .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Error fetching orders:", error)
-        toast.error("Failed to fetch orders")
-        throw error
+        console.error("Error fetching orders:", error);
+        toast.error("Failed to fetch orders");
+        throw error;
       }
 
-      console.log("Fetched orders:", data)
-      return data || []
+      console.log("Fetched orders:", data);
+      return data || [];
     },
-  })
+  });
 
   // Calculate statistics
-  const totalAmount = orders.reduce((sum, order) => sum + Number(order.invoice?.amount || 0), 0)
-  const fulfilledOrders = orders.filter(order => order.status === "fulfilled").length
-  const pendingOrders = orders.filter(order => order.status === "pending").length
+  const totalAmount = orders.reduce((sum, order) => sum + Number(order.product_price || 0), 0);
+  const fulfilledOrders = orders.filter((order) => order.status === "fulfilled").length;
+  const pendingOrders = orders.filter((order) => order.status === "pending").length;
 
   // Pagination
-  const totalPages = Math.ceil(orders.length / ordersPerPage)
-  const startIndex = (currentPage - 1) * ordersPerPage
-  const paginatedOrders = orders.slice(startIndex, startIndex + ordersPerPage)
+  const totalPages = Math.ceil(orders.length / ordersPerPage);
+  const startIndex = (currentPage - 1) * ordersPerPage;
+  const paginatedOrders = orders.slice(startIndex, startIndex + ordersPerPage);
 
   // CSV Export Data
   const csvData = [
-    ['Customer Name', 'Order ID', 'Payment Method', 'Date', 'Status', 'Amount'],
-    ...orders.map(order => [
-      order.invoice?.customer,
+    ["Customer Name", "Order ID", "Payment Method", "Date", "Status", "Amount"],
+    ...orders.map((order) => [
+      order.customer_name,
       order.id,
       order.payment_method,
-      order.invoice?.date ? new Date(order.invoice.date).toLocaleDateString() : '-',
+      order.order_date ? new Date(order.order_date).toLocaleDateString() : "-",
       order.status,
-      order.invoice?.amount ? `$${Number(order.invoice.amount).toFixed(2)}` : '$0.00'
-    ])
-  ]
+      `$${Number(order.product_price || 0).toFixed(2)}`,
+    ]),
+  ];
 
   const handleOrderCreated = () => {
     // Invalidate and refetch orders
-    queryClient.invalidateQueries({ queryKey: ["orders"] })
-  }
+    queryClient.invalidateQueries({ queryKey: ["orders"] });
+  };
 
   return (
     <div className="space-y-6">
@@ -116,8 +103,8 @@ export default function Orders() {
             <div>
               <h2 className="text-2xl font-bold">Your Orders</h2>
               <p className="text-muted-foreground">
-                Introducing Our Dynamic Orders Dashboard for Seamless Management and
-                Insightful Analysis.
+                Introducing Our Dynamic Orders Dashboard for Seamless Management and Insightful
+                Analysis.
               </p>
             </div>
           </div>
@@ -155,9 +142,7 @@ export default function Orders() {
         <div className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Recent Orders</h3>
-            <p className="text-sm text-muted-foreground">
-              Recent orders from your store
-            </p>
+            <p className="text-sm text-muted-foreground">Recent orders from your store</p>
           </div>
 
           <div className="flex items-center justify-between">
@@ -213,26 +198,27 @@ export default function Orders() {
                 ) : (
                   paginatedOrders.map((order) => (
                     <TableRow key={order.id}>
-                      <TableCell className="font-medium">
-                        {order.invoice?.customer}
-                      </TableCell>
+                      <TableCell className="font-medium">{order.customer_name}</TableCell>
                       <TableCell>{order.id.slice(0, 8)}</TableCell>
                       <TableCell>{order.payment_method}</TableCell>
                       <TableCell>
-                        {order.invoice?.date ? new Date(order.invoice.date).toLocaleDateString() : '-'}
+                        {order.order_date ? new Date(order.order_date).toLocaleDateString() : "-"}
                       </TableCell>
                       <TableCell>
-                        <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${order.status === 'fulfilled'
-                          ? 'bg-green-100 text-green-800'
-                          : order.status === 'declined'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                          }`}>
+                        <div
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            order.status === "fulfilled"
+                              ? "bg-green-800 text-green-100"
+                              : order.status === "declined"
+                              ? "bg-red-800 text-red-200"
+                              : "bg-yellow-700 text-white"
+                          }`}
+                        >
                           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        ${Number(order.invoice?.amount || 0).toFixed(2)}
+                        ${Number(order.product_price || 0).toFixed(2)}
                       </TableCell>
                     </TableRow>
                   ))
@@ -248,10 +234,10 @@ export default function Orders() {
                   <PaginationPrevious
                     href="#"
                     onClick={(e) => {
-                      e.preventDefault()
-                      setCurrentPage(p => Math.max(1, p - 1))
+                      e.preventDefault();
+                      setCurrentPage((p) => Math.max(1, p - 1));
                     }}
-                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -259,8 +245,8 @@ export default function Orders() {
                     <PaginationLink
                       href="#"
                       onClick={(e) => {
-                        e.preventDefault()
-                        setCurrentPage(page)
+                        e.preventDefault();
+                        setCurrentPage(page);
                       }}
                       isActive={currentPage === page}
                     >
@@ -272,10 +258,10 @@ export default function Orders() {
                   <PaginationNext
                     href="#"
                     onClick={(e) => {
-                      e.preventDefault()
-                      setCurrentPage(p => Math.min(totalPages, p + 1))
+                      e.preventDefault();
+                      setCurrentPage((p) => Math.min(totalPages, p + 1));
                     }}
-                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
                   />
                 </PaginationItem>
               </PaginationContent>
@@ -284,5 +270,5 @@ export default function Orders() {
         </div>
       </Card>
     </div>
-  )
+  );
 }
