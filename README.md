@@ -3,13 +3,16 @@ _A next-generation invoice and business management system powered by cutting-edg
 
 > "Designing something simple is much harder than making it complex. Simplicity is genius." — *Bill Gates*
 
-
 ---
 
 ## 📜 Overview
 
 **Empire Invoice Generator** is a modern, scalable, and highly efficient invoicing and management system developed using **React**, **Supabase**, and **PostgreSQL**, styled elegantly with **Tailwind CSS**.  
 It empowers businesses to **seamlessly generate, track, and manage invoices, customers, and products** — all within an intuitive, responsive interface.
+
+> ⚡ **Note on Authentication:**  
+> Currently, Empire Invoice Generator **does not implement** user authentication (sign-in/sign-up/session management).  
+> In future versions, integrating **Supabase Auth** (email/password, OAuth, or magic link authentication) is strongly recommended to ensure data security and controlled access.
 
 ---
 
@@ -91,7 +94,10 @@ farhanshahriyar-empire-invoice-gen/
 └── tsconfig files
 ```
 
-## Flowchart 
+---
+
+## 📈 Flowchart
+
 ---
 ![Empire Invoice Generator](https://78d11y9vqc.ufs.sh/f/5z2fDmMWhbJSS1wXrimU3biJQFRyIhTKkczrwpsxtdf7mgOW)
 
@@ -102,5 +108,15 @@ farhanshahriyar-empire-invoice-gen/
 - Navigate through intuitive pages (Dashboard, Customers, Invoices, Products, Orders).
 - Use the dynamic forms to create, edit, and manage customers, invoices, and products.
 - Instantly generate and download professional PDF invoices using the **InvoicePDF** feature.
+
+---
+
+## 📚 Future Improvements
+- **Authentication System:**  
+  Integrate **Supabase Auth** for login/signup and role-based access.
+- **Admin Panel:**  
+  Advanced analytics dashboard with sales reports.
+- **Multi-Currency Support:**  
+  Expand functionality for global invoicing.
 
 ---
